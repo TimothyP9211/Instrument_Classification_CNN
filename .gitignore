@@ -4,3 +4,6 @@ __pycache__/
 *.pyo
 *.pyd
 .ipynb_checkpoints/
+
+classify_dataset_mp3/
+classify_dataset
