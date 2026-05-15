@@ -5,5 +5,5 @@ __pycache__/
 *.pyd
 .ipynb_checkpoints/
 
-classify_dataset_mp3/
+classify_dataset_unprocessed/
 classify_dataset

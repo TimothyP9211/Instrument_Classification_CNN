@@ -4,9 +4,17 @@ import numpy as np
 from pathlib import Path
 from pydub import AudioSegment as AS
 
+import matplotlib.pyplot as plt
+from scipy.io import wavfile
+from glob import glob
+from librosa.core import resample, to_mono
 
-in_path = "TODO: replace this with input path"
-out_path = "TODO: replace this with output path"
+from tqdm import tqdm
+import wavio
+import os
+
+in_path = "classify_dataset_unprocessed/808"
+out_path = "classify_dataset/808"
 
 # Convert mp3 file to wav file for easier processing
 def mp3_to_wav(input_dir, output_dir=None):
