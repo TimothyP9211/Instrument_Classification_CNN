@@ -5,7 +5,7 @@ from pathlib import Path
 from pydub import AudioSegment as AS
 
 import tensorflow as tf
-
+import tqdm
 
 def main():
     return
