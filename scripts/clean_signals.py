@@ -109,7 +109,7 @@ def save_mel_spectrogram(audio_path, output):
     plt.savefig(os.path.join(output, f"{audio_path.stem}.png"))
     plt.close()
 
-# Some of the wav files had broken headers (for some annoying reason)
+# Some of the wav files can have broken headers (for some annoying reason)
 # So try using librosa, if that fails use pydub
 def load_audio(path, target_rate):
     try:
@@ -117,7 +117,6 @@ def load_audio(path, target_rate):
         return y.astype(np.float32), rate
 
     except Exception as e:
-        # Pydub backup 
         audio = AS.from_file(path)
 
         # Convert to mono and target sample rate
