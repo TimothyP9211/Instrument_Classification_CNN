@@ -17,7 +17,7 @@ import os
 
 import argparse
 
-# Convert mp3 file to wav file for easier processing
+# Convert mp3 file to wav file for easier processing if needed 
 def mp3_to_wav(input_dir, output_dir=None):
     input_dir = Path(input_dir)
     if output_dir is not None:
@@ -47,27 +47,35 @@ def filter(y, rate, threshold, window_size):
     return y[mask.to_numpy()], mask.to_numpy(), ym.to_numpy()
 
 # Make every sound clip the same length for consistency when converting to mel-spectrogram
-def split_audio(y, rate, target_len):
-    clip_len = int(rate * target_len)
-    clips = []
+# Finds the loudest
+def split_audio(y, rate, target_size):
+    clip_len = int(rate * target_size)
+    if len(y) == 0:
+        return np.zeros(clip_len, dtype=np.float32)
 
-    # If the length of the clip is shorter than target_len, pad with zeros
-    # Otherwise split the data into multiple clips of target length
-    if len(y) < clip_len:
+    # Find the loudest point
+    peak_idx = np.argmax(np.abs(y))
+    start = peak_idx - clip_len // 2
+    end = start + clip_len
+
+    # Boundary cases
+    if start < 0:
+        start = 0
+        end = clip_len
+    if end > len(y):
+        end = len(y)
+        start = max(0, end - clip_len)
+    
+    # Pad the length of the clip with zeros if too short
+    clip = y[start:end]
+    if len(clip) < clip_len:
         padded = np.zeros(clip_len, dtype=np.float32)
-        padded[:len(y)] = y
-        clips.append(padded)
-    else:
-        for start in range(0, len(y), clip_len):
-            clip = y[start:start + clip_len]
-            # Pad the split clip if it is too short
-            if len(clip) < clip_len:
-                padded = np.zeros(clip_len, dtype=np.float32)
-                padded[:len(clip)] = clip
-                clip = padded
-            clips.append(clip)
+        # Place shorter clip at the center of the entire clip
+        pad_start = (clip_len - len(clip)) // 2
+        padded[pad_start:pad_start + len(clip)] = clip
+        clip = padded
 
-    return clips
+    return clip.astype(np.float32)
 
 # # Downsample audio and convert to mono
 # def downsample_to_mono(target_rate, path):
@@ -84,55 +92,77 @@ def split_audio(y, rate, target_len):
 #     wave = resample(wave, wave.rate, target_rate)
 #     return wave.astype(np.int16)
 
-def show_mel_spectrogram(audio_path):
+# Saves the mel spectrogram of specified clip
+def save_mel_spectrogram(audio_path, output):
     y, sr = librosa.load(audio_path, sr=16000, mono=True)
 
     # Convert to mel-spectrogram
     mel = librosa.feature.melspectrogram(y=y,sr=sr,n_fft=1024,hop_length=256,n_mels=128)
 
-    # Convert power to decibels and plot
+    # Convert power to db and export plot
     mel_db = librosa.power_to_db(mel, ref=np.max)
     plt.figure(figsize=(10, 4))
     librosa.display.specshow(mel_db, sr=sr, hop_length=256, x_axis="time", y_axis="mel")
     plt.colorbar(format="%+2.0f dB")
     plt.title(f"Mel-Spectrogram for {audio_path}")
     plt.tight_layout()
-    plt.show()
+    plt.savefig(os.path.join(output, f"{audio_path.stem}.png"))
+    plt.close()
+
+# Some of the wav files had broken headers (for some annoying reason)
+# So try using librosa, if that fails use pydub
+def load_audio(path, target_rate):
+    try:
+        y, rate = librosa.load(path, sr=target_rate, mono=True)
+        return y.astype(np.float32), rate
+
+    except Exception as e:
+        # Pydub backup 
+        audio = AS.from_file(path)
+
+        # Convert to mono and target sample rate
+        audio = audio.set_channels(1)
+        audio = audio.set_frame_rate(target_rate)
+        samples = np.array(audio.get_array_of_samples()).astype(np.float32)
+
+        # Normalize depending on sample width
+        max_val = float(1 << (8 * audio.sample_width - 1))
+        y = samples / max_val
+        return y, target_rate
 
 def main():
-    # input_path = "classify_dataset_unprocessed/clap/"
-    # output_path = "classify_dataset/clap/"
+    input_path = "classify_dataset_unprocessed/808/"
+    output_path = "classify_dataset/808/"
 
-    # # mp3_to_wav(input_dir=input_path, output_dir=output_path)
+    # mp3_to_wav(input_dir=input_path, output_dir=output_path)
 
-    # in_path = Path(input_path)
-    # out_path = Path(output_path)
-    # out_path.mkdir(parents=True, exist_ok=True)
+    in_path = Path(input_path)
+    out_path = Path(output_path)
+    out_path.mkdir(parents=True, exist_ok=True)
 
-    # # 16kHz target sampling rate
-    # target_rate = 16000
-    # # Threshold for rolling window
-    # threshold = 0.02
-    # # Size of window
-    # window_seconds = 0.05
-    # # Size of each output clip
-    # clip_size = 1
+    # 16kHz target sampling rate
+    target_rate = 16000
+    # Threshold for rolling window
+    threshold = 0.02
+    # Size of window
+    window_seconds = 0.05
+    # Size of each output clip
+    clip_size = 1
 
-    # for audio_path in tqdm(list(in_path.glob("*.wav")), desc="Preprocessing audio"):
-    #     y, rate = librosa.load(audio_path, sr=target_rate, mono=True)
-    #     yf, mask, rolling_max = filter(y, rate, threshold=threshold, window_size=window_seconds)
-    #     # If audio length is 0 after signal filter, skip
-    #     if len(yf) == 0:
-    #         continue
+    for audio_path in tqdm(list(in_path.glob("*.wav")), desc="Preprocessing audio"):
+        y, rate = load_audio(path=audio_path, target_rate=target_rate)
+        yf, mask, rolling_max = filter(y, rate, threshold=threshold, window_size=window_seconds)
+        # If audio length is 0 after signal filter, skip
+        if len(yf) == 0:
+            continue
         
-    #     # Split audio into equal sized clips and export
-    #     clips = split_audio(yf, target_rate, clip_size)
-    #     for i, clip in enumerate(clips):
-    #         out = out_path / f"{audio_path.stem}_clip_{i:03d}.wav"
-    #         sf.write(out, clip, rate)
+        # Split/pad audio centered around the loudest region in the clip
+        clip = split_audio(yf, target_rate, clip_size)
+        out = out_path / f"{audio_path.stem}.wav"
+        sf.write(out, clip, target_rate)
 
-    audio_path = "classify_dataset/808/Cymatics - 808 Arrow (C)_clip_000.wav"
-    show_mel_spectrogram(audio_path=audio_path)
+        # Save output spectrogram
+        save_mel_spectrogram(audio_path=out, output="mel spectrograms/808/")
 
     print("Done")
     return 
