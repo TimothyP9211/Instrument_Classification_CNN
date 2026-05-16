@@ -47,7 +47,7 @@ def filter(y, rate, threshold, window_size):
     return y[mask.to_numpy()], mask.to_numpy(), ym.to_numpy()
 
 # Make every sound clip the same length for consistency when converting to mel-spectrogram
-# Finds the loudest
+# Finds the loudest portion of the clip and uses that as the center for window of target_size
 def split_audio(y, rate, target_size):
     clip_len = int(rate * target_size)
     if len(y) == 0:
