@@ -6,21 +6,16 @@ import numpy as np
 
 class AudioDataset(tf.keras.utils.Sequence):
     # Dataloader for wav files
-    def __init__(self, audio_paths, sample_rate, num_classes, batch_size, shuffle=True):
+    def __init__(self, audio_paths, class_to_idx, sample_rate, num_classes, batch_size, shuffle=True):
+        # List of audio paths (for splitting into train/val data)
         self.audio_paths = list(audio_paths)
-
-        # Audio paths
-        self.audio_paths = sorted([p for p in self.audio_dir.rglob("*.wav")])
-
-        # Class names (same as parent folder names)
-        self.class_names = sorted([p.name for p in self.audio_dir.iterdir() if p.is_dir()])
-
-        self.class_to_idx = {class_name: i for i, class_name in enumerate(self.class_names)}
-
+        
+        self.class_to_idx = class_to_idx
         self.sr = sample_rate
         self.num_classes = num_classes
         self.batch_size = batch_size
         self.shuffle = shuffle
+        self.indexes = np.arange(len(self.audio_paths))
 
         self.on_epoch_end()
     
@@ -29,10 +24,9 @@ class AudioDataset(tf.keras.utils.Sequence):
 
     # Get mel spectrograms and labels of batch index=idx
     def __getitem__(self, idx):
-        start = idx * self.batch_size
-        end = start + self.batch_size
         X, y = [],[]
-        for audio_path in self.audio_paths[start:end]:
+        batch_indices = self.indexes[idx * self.batch_size : (idx + 1) * self.batch_size]
+        for audio_path in [self.audio_paths[i] for i in batch_indices]:
             # Read and decode wav file binary
             audio_binary = tf.io.read_file(str(audio_path))
             audio, sr = tf.audio.decode_wav(audio_binary)
@@ -41,7 +35,7 @@ class AudioDataset(tf.keras.utils.Sequence):
             audio = tf.squeeze(audio, axis=-1)
 
             # Apply short-time fourier transform to create initial spectrogram
-            spectrogram = tf.signal.stft(audio, frame_length=1024, frame_step=256)
+            spectrogram = tf.signal.stft(audio, frame_length=256, frame_step=64)
             spectrogram = tf.abs(spectrogram)
 
             # Convert to mel spectrogram 
@@ -69,6 +63,5 @@ class AudioDataset(tf.keras.utils.Sequence):
         return X, y
     
     def on_epoch_end(self):
-        self.indexes = np.arange(len(self.audio_paths))
         if self.shuffle:
             np.random.shuffle(self.indexes)
