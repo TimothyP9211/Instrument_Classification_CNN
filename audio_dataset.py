@@ -6,23 +6,16 @@ import numpy as np
 
 class AudioDataset(tf.keras.utils.Sequence):
     # Dataloader for wav files
-    def __init__(self, audio_dir, sample_rate, num_classes, batch_size, shuffle=True):
-        self.audio_dir = Path(audio_dir)
+    def __init__(self, audio_paths, sample_rate, num_classes, batch_size, shuffle=True):
+        self.audio_paths = list(audio_paths)
 
         # Audio paths
-        self.audio_paths = sorted([
-            p for p in self.audio_dir.rglob("*.wav")
-        ])
+        self.audio_paths = sorted([p for p in self.audio_dir.rglob("*.wav")])
 
         # Class names (same as parent folder names)
-        self.class_names = sorted([
-            p.name for p in self.audio_dir.iterdir()
-            if p.is_dir()
-        ])
+        self.class_names = sorted([p.name for p in self.audio_dir.iterdir() if p.is_dir()])
 
-        self.class_to_idx = {
-            class_name: i for i, class_name in enumerate(self.class_names)
-        }
+        self.class_to_idx = {class_name: i for i, class_name in enumerate(self.class_names)}
 
         self.sr = sample_rate
         self.num_classes = num_classes
@@ -47,8 +40,20 @@ class AudioDataset(tf.keras.utils.Sequence):
             # Convert from (samples, channels=1) to (samples,)
             audio = tf.squeeze(audio, axis=-1)
 
-            # Create the mel spectrogram and add a dimension for channel
-            spectrogram = tf.abs(tf.signal.stft(audio, frame_length=1024, frame_step=256))
+            # Apply short-time fourier transform to create initial spectrogram
+            spectrogram = tf.signal.stft(audio, frame_length=1024, frame_step=256)
+            spectrogram = tf.abs(spectrogram)
+
+            # Convert to mel spectrogram 
+            mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(
+                num_mel_bins = 64,
+                num_spectrogram_bins = spectrogram.shape[-1],
+                sample_rate = self.sr,
+                lower_edge_hertz = 20.0,
+                upper_edge_hertz = self.sr * 0.5 # Nyquist frequency -> must be >= half the sample rate
+            )
+            spectrogram = tf.matmul(tf.square(spectrogram), mel_weight_matrix)
+            spectrogram = tf.math.log(spectrogram + 1e-5)
             spectrogram = tf.expand_dims(spectrogram, axis=-1)
             X.append(spectrogram)
 

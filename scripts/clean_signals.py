@@ -15,8 +15,6 @@ from tqdm import tqdm
 import wavio
 import os
 
-import argparse
-
 # Convert mp3 file to wav file for easier processing if needed 
 def mp3_to_wav(input_dir, output_dir=None):
     input_dir = Path(input_dir)
