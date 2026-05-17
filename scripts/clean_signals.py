@@ -130,8 +130,8 @@ def load_audio(path, target_rate):
         return y, target_rate
 
 def main():
-    input_path = "classify_dataset_unprocessed/808/"
-    output_path = "classify_dataset/808/"
+    input_path = "classify_dataset_unprocessed/vocals/"
+    output_path = "classify_dataset/vocals/"
 
     # mp3_to_wav(input_dir=input_path, output_dir=output_path)
 
@@ -146,7 +146,7 @@ def main():
     # Size of window
     window_seconds = 0.05
     # Size of each output clip
-    clip_size = 1
+    clip_size = 0.25
 
     for audio_path in tqdm(list(in_path.glob("*.wav")), desc="Preprocessing audio"):
         y, rate = load_audio(path=audio_path, target_rate=target_rate)
@@ -161,7 +161,7 @@ def main():
         sf.write(out, clip, target_rate)
 
         # Save output spectrogram
-        save_mel_spectrogram(audio_path=out, output="mel spectrograms/808/")
+        save_mel_spectrogram(audio_path=out, output="mel spectrograms/vocals/")
 
     print("Done")
     return 
