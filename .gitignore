@@ -6,6 +6,4 @@ __pycache__/
 .ipynb_checkpoints/
 
 classify_dataset_unprocessed/
-classify_dataset
 test_dataset_unprocessed/
-test_dataset
