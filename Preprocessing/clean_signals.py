@@ -137,11 +137,11 @@ def load_audio(path, target_rate):
         return y, target_rate
 
 def main():
-    input_path = "classify_dataset_unprocessed/saxaphone/"
-    output_path = "classify_dataset/saxaphone/"
+    input_path = "classify_dataset_unprocessed/vocals/"
+    output_path = "classify_dataset/vocals/"
 
-    # input_path = "test_dataset_unprocessed/saxaphone/"
-    # output_path = "test_dataset/saxaphone/"
+    # input_path = "test_dataset_unprocessed/vocals/"
+    # output_path = "test_dataset/vocals/"
 
     # mp3_to_wav(input_dir=input_path, output_dir=output_path)
 
@@ -174,7 +174,7 @@ def main():
         sf.write(out, clip, target_rate)
 
         # Save output spectrogram
-        save_mel_spectrogram(audio_path=out, output="mel spectrograms/saxaphone/")
+        save_mel_spectrogram(audio_path=out, output="mel spectrograms/vocals/")
 
     print("Done")
     return 
