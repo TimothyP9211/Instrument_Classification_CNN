@@ -137,8 +137,11 @@ def load_audio(path, target_rate):
         return y, target_rate
 
 def main():
-    input_path = "classify_dataset_unprocessed/vocals/"
-    output_path = "classify_dataset/vocals/"
+    input_path = "classify_dataset_unprocessed/saxaphone/"
+    output_path = "classify_dataset/saxaphone/"
+
+    # input_path = "test_dataset_unprocessed/saxaphone/"
+    # output_path = "test_dataset/saxaphone/"
 
     # mp3_to_wav(input_dir=input_path, output_dir=output_path)
 
@@ -148,10 +151,13 @@ def main():
 
     # 16kHz target sampling rate
     target_rate = 16000
+
     # Threshold for rolling window
     threshold = 0.02
+
     # Size of window
     window_seconds = 0.05
+
     # Size of each output clip
     clip_size = 0.25
 
@@ -168,7 +174,7 @@ def main():
         sf.write(out, clip, target_rate)
 
         # Save output spectrogram
-        save_mel_spectrogram(audio_path=out, output="mel spectrograms/vocals/")
+        save_mel_spectrogram(audio_path=out, output="mel spectrograms/saxaphone/")
 
     print("Done")
     return 
