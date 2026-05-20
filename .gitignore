@@ -7,3 +7,6 @@ __pycache__/
 
 classify_dataset_unprocessed/
 test_dataset_unprocessed/
+
+test_dataset_unsorted/
+test_dataset_sorted/
