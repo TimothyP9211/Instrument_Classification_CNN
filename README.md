@@ -22,6 +22,7 @@ Retrieved from ResearchGate.
 ## Data Collection and Preprocessing
 
 ![MS1](figures/ms1.png)
+![MS2](figures/ms2.png)
 
 ## Model
 
