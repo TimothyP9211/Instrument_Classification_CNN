@@ -12,17 +12,22 @@ Audio signals contain a large spectrum of freqeuncies which together form a coll
 The solution to this is the **Short-Time Fourier Transform (STFT)**, which takes the FFT at stepped fixed-sized windows of the signal over time and then stacks them on top of one another to create a visual representation of the sound over time including variations of amplitude of different frequencies. 
 
 ![STFT](figures/stft.png)
-Figure 1: Short-time Fourier Transform 
+*Figure 1: Short-time Fourier Transform 
 Source: Jeon, H., Jung, Y., Lee, S., & Jung, Y. (2020), 
 “Area-Efficient Short-Time Fourier Transform Processor for Time–Frequency Analysis of Non-Stationary Signals,” Applied Sciences.
-Retrieved from ResearchGate.
+Retrieved from ResearchGate.*
 
 ### Mel Spectrogram
+The Mel scale uses the human perception of sounds by giving higher resolution at lower frequency allowing equal pitch distances to sound equally spaced. This is because humans are able to differenciate sounds at lower frequencies more easily that those at higher frequencies. The Mel-spectrogram uses mel scale frequencies by constructing a **Mel filter bank** which is applied to the spectrogram obtained by STFT. This filter bank is composed of a collection of mel bands which are collections of frequencies associated with the different frequencies we actually hear. 
+Mel Spectrograms work better than regular spectrograms for audio classification as it reduces the size of the model input (by grouping by frequency bands) as well as aligns closer to what we actually hear in terms of sound.
 
 ## Data Collection and Preprocessing
+The following figure shows mel spectrograms for each of the ten different instrument classes. Sound clips from the same instrument class will generate similar mel spectrograms, all which for the entire dataset can be viewed in the mel spectrograms folder in this repo.
 
-![MS1](figures/ms1.png)
-![MS2](figures/ms2.png)
+![MS](figures/ms.png)
+*Figure 2: Example Mel Spectrograms of the Ten Instrument Classes
+
+Used 64 Mel bands
 
 ## Model
 
