@@ -25,7 +25,7 @@ Mel Spectrograms work better than regular spectrograms for audio classification 
 The following figure shows mel spectrograms for each of the ten different instrument classes. Sound clips from the same instrument class will generate similar mel spectrograms, all which for the entire dataset can be viewed in the mel spectrograms folder in this repo.
 
 ![MS](figures/ms.png)
-*Figure 2: Example Mel Spectrograms of the Ten Instrument Classes
+*Figure 2: Example Mel Spectrograms of the Ten Instrument Classes*
 
 Used 64 Mel bands
 
