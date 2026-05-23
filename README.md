@@ -13,6 +13,7 @@ The solution to this is the **Short-Time Fourier Transform (STFT)**, which takes
 
 ![STFT](figures/stft.png)
 *Figure 1: Short-time Fourier Transform 
+
 Source: Jeon, H., Jung, Y., Lee, S., & Jung, Y. (2020), 
 “Area-Efficient Short-Time Fourier Transform Processor for Time–Frequency Analysis of Non-Stationary Signals,” Applied Sciences.
 Retrieved from ResearchGate.*
