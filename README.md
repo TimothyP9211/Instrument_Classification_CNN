@@ -11,10 +11,17 @@ Audio signals contain a large spectrum of freqeuncies which together form a coll
 
 The solution to this is the **Short-Time Fourier Transform (STFT)**, which takes the FFT at stepped fixed-sized windows of the signal over time and then stacks them on top of one another to create a visual representation of the sound over time including variations of amplitude of different frequencies. 
 
+![STFT](figures/stft.png)
+Figure 1: Short-time Fourier Transform 
+Source: Jeon, H., Jung, Y., Lee, S., & Jung, Y. (2020), 
+“Area-Efficient Short-Time Fourier Transform Processor for Time–Frequency Analysis of Non-Stationary Signals,” Applied Sciences.
+Retrieved from ResearchGate.
 
 ### Mel Spectrogram
 
 ## Data Collection and Preprocessing
+
+![MS1](figures/ms1.png)
 
 ## Model
 
@@ -26,3 +33,5 @@ The solution to this is the **Short-Time Fourier Transform (STFT)**, which takes
 
 ## Sources
 https://medium.com/analytics-vidhya/understanding-the-mel-spectrogram-fca2afa2ce53
+
+Jeon, H., Jung, Y., Lee, S., & Jung, Y. (2020). Area-Efficient Short-Time Fourier Transform Processor for Time–Frequency Analysis of Non-Stationary Signals. Applied Sciences. Figure: Short-time Fourier transform (STFT) overview. Retrieved from ResearchGate.

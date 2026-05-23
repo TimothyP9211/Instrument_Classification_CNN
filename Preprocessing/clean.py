@@ -111,7 +111,7 @@ def save_mel_spectrogram(audio_path, output):
     plt.figure(figsize=(10, 4))
     librosa.display.specshow(mel_db, sr=sr, hop_length=256, x_axis="time", y_axis="mel")
     plt.colorbar(format="%+2.0f dB")
-    plt.title(f"Mel-Spectrogram for {audio_path}")
+    plt.title(f"Mel-Spectrogram for {audio_path.name}")
     plt.tight_layout()
     plt.savefig(os.path.join(output, f"{audio_path.stem}.png"))
     plt.close()
