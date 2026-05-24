@@ -41,10 +41,12 @@ All of the data collected in this project comes from my own producer library, in
 *Figure 2: Instrument Classes and number of samples per class*
 
 ### Data Cleaning
-Most of the samples from the unprocessed dataset are of varying lengths, however the classifier always expects the same size input dimensions. To preprocess the dataset, each sample was first downsampled to 16.00 kHz and converted to monochannel to make the inputs uniform and reduce computation size. Due to the Nyquist limit, the resulting maximum reconstructed frequency is thus 8.00 kHz which is enough to reconstruct all instruments in the dataset. Then a rolling window filter is applied to the sounds to cut out deadspace below a threshold. Finally, each sample is cut into a set size of 0.25s centered around the peak volume within that sample and padding with zeros if the duration is less than 0.25s. All these preprocessing steps can be found in [clean.py](Preprocessing/clean.py).
+Most of the samples from the unprocessed dataset are of varying lengths, however the classifier always expects the same size input dimensions. To preprocess the dataset, each sample was first downsampled to 16.00 kHz and converted to monochannel to make the inputs uniform and reduce computation size. Due to the Nyquist limit, the resulting maximum reconstructed frequency is thus 8.00 kHz which is enough to reconstruct all instruments in the dataset. Then a rolling window filter is applied to the sounds to cut out deadspace below a threshold. Finally, each sample is cut into a set size of 0.25s centered around the peak volume within that sample and padding with zeros if the duration is less than 0.25s. 
+
+All these preprocessing steps can be found in [clean.py](Preprocessing/clean.py).
 
 ### Data Loader
-When the requested by the model, the dataloader will select a batch of samples post-processing and return a batch of mel spectrograms using 64 mel bands. The data loader can be found in [audio_dataset.py](audio_dataset.py).
+When the requested by the model, the dataloader will select a batch of samples post-processing and return a batch of corresponding mel spectrograms using 64 mel bands. The data loader can be found in [audio_dataset.py](audio_dataset.py).
 
 The following figure shows mel spectrograms for each of the ten different instrument classes. Sound clips from the same instrument class will generate similar mel spectrograms, all which for the entire dataset can be viewed in the mel spectrograms folder in this repo.
 
@@ -52,8 +54,14 @@ The following figure shows mel spectrograms for each of the ten different instru
 *Figure 3: Example Mel Spectrograms of the Ten Instrument Classes*
 
 ## Model
+The classifier used for this project was built using the Tensorflow Keras API. For feature extraction, there are 3 Conv2D layers using 3x3 kernels and ReLU activation as well as 2 in-between MaxPooling2D layers to reduce dimensionality (originally there was 3, however each sound is only 0.25s which makes the resulting mel spectrogram small). For learning, there is a single fully connected dense layer, followed by a dropout layer and finally the output layer which has output size 10 for the instrument classes.
+
+The model can be found in [classifier_model.py](classifier_model.py).
 
 ## Training and Evaluation
+
+![ConfusionMatrix](figures/confusion_matrix.png)
+*Figure 4: Confusion matrix over the test set*
 
 ## Real-World Application: Sorting by Instrument Class
 
