@@ -38,7 +38,7 @@ All of the data collected in this project comes from my own producer library, in
 | Vocals | 8 | 56 |
 | Keys | 9 | 66 |
 
-*Figure 2: Instrument Classes and number of samples per class*
+*Figure 2: Instrument Classes and Number of Samples Per Class*
 
 ### Data Cleaning
 Most of the samples from the unprocessed dataset are of varying lengths, however the classifier always expects the same size input dimensions. To preprocess the dataset, each sample was first downsampled to 16.00 kHz and converted to monochannel to make the inputs uniform and reduce computation size. Due to the Nyquist limit, the resulting maximum reconstructed frequency is thus 8.00 kHz which is enough to reconstruct all instruments in the dataset. Then a rolling window filter is applied to the sounds to cut out deadspace below a threshold. Finally, each sample is cut into a set size of 0.25s centered around the peak volume within that sample and padding with zeros if the duration is less than 0.25s. 
@@ -59,11 +59,20 @@ The classifier used for this project was built using the Tensorflow Keras API. F
 The model can be found in [classifier_model.py](classifier_model.py).
 
 ## Training and Evaluation
+The dataset was split into training and validation sets (80:20 split) and the model was trained using **categorical cross-entropy loss** and using the Adam optimizer with a fixed learning rate. The validation metric for choosing the best model was simply the validation accuracy: how accurately the model the correct instrument from the validation set. Since both training and validation sets were small in size, training was done effectively on the CPU which took only around 5 minutes (on a Ryzen 9 7900x). The training history can be viewed [here](model_history.csv), noting the early stopping callback used to reduce overfitting hence why the training ended after 15/30 epochs.
+
+The best model was then evaluated on the test set (with 8-12 test sounds per class), yielding the following normalized confusion matrix:
 
 ![ConfusionMatrix](figures/confusion_matrix.png)
-*Figure 4: Confusion matrix over the test set*
+*Figure 4: Confusion Matrix over the Test Set*
+
+The model achieved a **test accuracy of 91.35%**. As shown in the figure above, the model was able to correctly classify all the drum-based as well as vocal (choir) sounds. The model was also highly accurate when classifying audio clips of flute, and keys. The worst performing class for the model was clips of violin with only a 50% accuracy with the most common incorrect prediction of saxaphone occuring 25% of the time. 
 
 ## Real-World Application: Sorting by Instrument Class
+Using the trained model, I am able to [place instruments into sorted categories](sorting_hat.py) from an unsorted collection of sounds. This is actually rather useful for sound organization and much faster than manually sifting through each sound, even if the sorted results are not 100% perfect.
+
+![SortingHat](figures/sorting.png)
+*Figure 5: Model Sorting by Instrument Class*
 
 ## Conclusion
 
